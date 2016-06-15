@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Notes</title>
+    <link>http://p12se.github.io/post/</link>
+    <description>Recent content in Posts on Notes</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 15 Jun 2016 14:11:01 +0600</lastBuildDate>
+    <atom:link href="http://p12se.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Установка драйверов CH340, CH341 для китайстойкой arduino в mac os el capitan</title>
+      <link>http://p12se.github.io/post/install_driver_ch340_341_arduino_for_mac_os_el_capitan/</link>
+      <pubDate>Wed, 15 Jun 2016 14:11:01 +0600</pubDate>
+      
+      <guid>http://p12se.github.io/post/install_driver_ch340_341_arduino_for_mac_os_el_capitan/</guid>
+      <description>&lt;p&gt;Для того, что бы подключить китайскую arduino mega, пришлось мне изрядно повозиться.&lt;/p&gt;
+
+&lt;p&gt;Проблема заключалась в том, что в устройство не  определялось на моей системе El Capitan. Простая установка драйверов под чипы &lt;strong&gt;CH340G, CH340, CH341&lt;/strong&gt; не давала необходимого результата.&lt;/p&gt;
+
+&lt;p&gt;Для решения этой проблемы необходимо проделать следующие действия:&lt;br /&gt;
+* Перезагружаем свою систему;&lt;br /&gt;
+* Во время загрузки нажимаем &lt;strong&gt;CMD+R&lt;/strong&gt; после загрузки попадаем в режим восстановления;&lt;br /&gt;
+* Запускаем терминал и вводим команду  &lt;code&gt;csrutil enable --without kext&lt;/code&gt;;&lt;br /&gt;
+* перезагружаем.&lt;/p&gt;
+
+&lt;p&gt;После того как загрузилась система необходимо скачать драйвера &lt;a href=&#34;http://www.wch.cn/download/CH341SER_MAC_ZIP.html&#34;&gt;http://www.wch.cn/download/CH341SER_MAC_ZIP.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Устанавливайте их, затем в Arduino.app переходим в Инструменты -&amp;gt; Порт&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
