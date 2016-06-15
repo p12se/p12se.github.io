@@ -6,8 +6,91 @@
     <description>Recent content on Notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 15 Jun 2016 14:11:01 +0600</lastBuildDate>
+    <lastBuildDate>Wed, 15 Jun 2016 21:04:29 +0600</lastBuildDate>
     <atom:link href="http://p12se.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Настройка nginx в качесте прокси-сервера для tomcat</title>
+      <link>http://p12se.github.io/post/tomcat7_withs_nginx/</link>
+      <pubDate>Wed, 15 Jun 2016 21:04:29 +0600</pubDate>
+      
+      <guid>http://p12se.github.io/post/tomcat7_withs_nginx/</guid>
+      <description>&lt;p&gt;Появилась необходимость настроить nginx для tomcat. Nginx будет кешировать всю статику и отдавать ее сразу клиенту без обращения к tomcat, тем самым уменьшит нагрузку на tomcat в целом.&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-nginx&#34; data-lang=&#34;nginx&#34;&gt;&lt;span class=&#34;k&#34;&gt;gzip&lt;/span&gt; &lt;span class=&#34;no&#34;&gt;on&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;gzip_http_version&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;.1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;gzip_vary&lt;/span&gt; &lt;span class=&#34;no&#34;&gt;on&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;gzip_comp_level&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;gzip_proxied&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;any&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;gzip_types&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;text/plan&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;text/css&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;application/json&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;application/x-javascript&lt;/span&gt;  
+ &lt;span class=&#34;s&#34;&gt;text/xml&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;application/xml&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;application/xml+rss&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;text/javascript&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;application/javascript&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;text/x-js&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;gzip_buffers&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;16&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;8k&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;gzip_disable&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;MSIE&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;[1-6]\.(?!.*SV1)&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;  
+
+&lt;span class=&#34;c1&#34;&gt;#Путь хранения кэша, уровень вложенности, имя и размер зоны, время не&lt;/span&gt;
+&lt;span class=&#34;c1&#34;&gt;#использования кэша после которого он удаляется, максимальный размер кэша &lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;proxy_cache_path&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;/var/cache/nginx&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;levels=1:2&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;keys_zone=serg_cache:90m&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;inactive=100m&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;max_size=110m&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Далее настроим, что нам необходимо кешировать и какие передавать заголовки tomcat. Кешируем все картинки, таблицы стилей и js. В своих файлах я добавляю параметр &lt;em&gt;?v=&lt;/em&gt; версию файла, при изменении я увеличиваем цифру или указываю дату (например так 20150223),  тем самым говорим бразеру, что бы он перезагрузил файл с сервера, а не брал копию из своего кэша. В коментарии есть пояснения для основных значений конфигурации.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-nginx&#34; data-lang=&#34;nginx&#34;&gt;&lt;span class=&#34;k&#34;&gt;location&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;/&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+
+&lt;span class=&#34;kn&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$request_uri&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;~&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;.(jpg|jpeg|gif|css|png|ico|js)(\?v=[0-9.]+)?&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$&amp;quot;&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;c1&#34;&gt;#говорим браузеру, что кешированные файлы нужно хранить 3 дня &lt;/span&gt;
+	&lt;span class=&#34;kn&#34;&gt;expires&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;3d&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;kn&#34;&gt;access_log&lt;/span&gt; &lt;span class=&#34;no&#34;&gt;off&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+	&lt;span class=&#34;kn&#34;&gt;break&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;kn&#34;&gt;proxy_set_header&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;X-Forwarded-Host&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$host&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_set_header&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;X-Forwarded-Server&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$host&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_set_header&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;X-Forwarded-For&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$proxy_add_x_forwarded_for&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_set_header&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Host&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$host&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_set_header&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;X-Forwarded-Proto&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$scheme&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;kn&#34;&gt;add_header&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;X-Cache-Status&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$upstream_cache_status&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;#адресс tomcat&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_pass&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;http://localhost:8080&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;kn&#34;&gt;index&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;index.jsp&lt;/span&gt;
+&lt;span class=&#34;s&#34;&gt;proxy_ignore_headers&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;X-Accel-Expires&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Expires&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;Cache-Control&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_cache&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;serg_cache&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_cache_min_uses&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_cache_valid&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;200&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;302&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;120m&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_cache_valid&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;404&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1m&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_cache_use_stale&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;error&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;timeout&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;invalid_header&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;http_500&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;http_502&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;http_503&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;http_504&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;kn&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$no_cache&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;#не кешировать если у пользователя есть кука начинающаяся на JSESSION&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$http_cookie&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;~&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;JSESSION*&amp;quot;)&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;kn&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$no_cache&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;c1&#34;&gt;#если в uri есть management или client&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$request_uri&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;~&lt;/span&gt;&lt;span class=&#34;sr&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;quot;(/management*|/client*)&amp;quot;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+	&lt;span class=&#34;kn&#34;&gt;set&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$no_cache&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;kn&#34;&gt;proxy_no_cache&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$no_cache&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;kn&#34;&gt;proxy_cache_bypass&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;$no_cache&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+
+&lt;p&gt;Теперь необходимо настроить сам tomcat. Для этого достаточно в файле server.xml прописать.
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span class=&#34;nt&#34;&gt;&amp;lt;Connector&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;port=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;8080&amp;quot;&lt;/span&gt; &lt;span class=&#34;na&#34;&gt;protocol=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;HTTP/1.1&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;connectionTimeout=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;20000&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;address=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;127.0.0.1&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;URIEncoding=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;UTF-8&amp;quot;&lt;/span&gt;
+    &lt;span class=&#34;na&#34;&gt;redirectPort=&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;quot;8443&amp;quot;&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;/&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Установка драйверов CH340, CH341 для китайстойкой arduino в mac os el capitan</title>
