@@ -39,77 +39,77 @@
   <section class="body" itemprop="articleBody">
     <p>Появилась необходимость настроить nginx для tomcat. Nginx будет кешировать всю статику и отдавать ее сразу клиенту без обращения к tomcat, тем самым уменьшит нагрузку на tomcat в целом.</p>
 
-<div class="highlight"><pre><code class="language-nginx" data-lang="nginx"><span class="k">gzip</span> <span class="no">on</span><span class="p">;</span>
-<span class="k">gzip_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
-<span class="k">gzip_vary</span> <span class="no">on</span><span class="p">;</span>
-<span class="k">gzip_comp_level</span> <span class="mi">5</span><span class="p">;</span>
-<span class="k">gzip_proxied</span> <span class="s">any</span><span class="p">;</span>
-<span class="k">gzip_types</span> <span class="s">text/plan</span> <span class="s">text/css</span> <span class="s">application/json</span> <span class="s">application/x-javascript</span>  
- <span class="s">text/xml</span> <span class="s">application/xml</span> <span class="s">application/xml+rss</span> <span class="s">text/javascript</span> <span class="s">application/javascript</span> <span class="s">text/x-js</span><span class="p">;</span>
-<span class="k">gzip_buffers</span> <span class="mi">16</span> <span class="mi">8k</span><span class="p">;</span>
-<span class="k">gzip_disable</span> <span class="s">&quot;MSIE</span> <span class="s">[1-6]\.(?!.*SV1)&quot;</span><span class="p">;</span>  
 
-<span class="c1">#Путь хранения кэша, уровень вложенности, имя и размер зоны, время не</span>
-<span class="c1">#использования кэша после которого он удаляется, максимальный размер кэша </span>
-<span class="k">proxy_cache_path</span> <span class="s">/var/cache/nginx</span> <span class="s">levels=1:2</span> <span class="s">keys_zone=serg_cache:90m</span> <span class="s">inactive=100m</span> <span class="s">max_size=110m</span><span class="p">;</span>
-</code></pre></div>
+gzip on;
+gzip_http_version 1.1;
+gzip_vary on;
+gzip_comp_level 5;
+gzip_proxied any;
+gzip_types text/plan text/css application/json application/x-javascript  
+ text/xml application/xml application/xml+rss text/javascript application/javascript text/x-js;
+gzip_buffers 16 8k;
+gzip_disable "MSIE [1-6]\.(?!.*SV1)";  
+
+#Путь хранения кэша, уровень вложенности, имя и размер зоны, время не
+#использования кэша после которого он удаляется, максимальный размер кэша 
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=serg_cache:90m inactive=100m max_size=110m;
 
 
 <p>Далее настроим, что нам необходимо кешировать и какие передавать заголовки tomcat. Кешируем все картинки, таблицы стилей и js. В своих файлах я добавляю параметр <em>?v=</em> версию файла, при изменении я увеличиваем цифру или указываю дату (например так 20150223),  тем самым говорим бразеру, что бы он перезагрузил файл с сервера, а не брал копию из своего кэша. В коментарии есть пояснения для основных значений конфигурации.</p>
 
-<p><div class="highlight"><pre><code class="language-nginx" data-lang="nginx"><span class="k">location</span> <span class="s">/</span> <span class="p">{</span>
+<p>
+location / {
 
-<span class="kn">if</span> <span class="s">(</span><span class="nv">$request_uri</span> <span class="p">~</span><span class="sr">*</span> <span class="s">&quot;.(jpg|jpeg|gif|css|png|ico|js)(\?v=[0-9.]+)?</span><span class="nv">$&quot;</span><span class="s">)</span> <span class="p">{</span>
-	<span class="c1">#говорим браузеру, что кешированные файлы нужно хранить 3 дня </span>
-	<span class="kn">expires</span> <span class="s">3d</span><span class="p">;</span>
-	<span class="kn">access_log</span> <span class="no">off</span><span class="p">;</span>
-	<span class="kn">break</span><span class="p">;</span>
-<span class="p">}</span>
+if ($request_uri ~* ".(jpg|jpeg|gif|css|png|ico|js)(\?v=[0-9.]+)?$") {
+	#говорим браузеру, что кешированные файлы нужно хранить 3 дня 
+	expires 3d;
+	access_log off;
+	break;
+}
 
-<span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Host</span> <span class="nv">$host</span><span class="p">;</span>
-<span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Server</span> <span class="nv">$host</span><span class="p">;</span>
-<span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
-<span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$host</span><span class="p">;</span>
-<span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$scheme</span><span class="p">;</span>
+proxy_set_header X-Forwarded-Host $host;
+proxy_set_header X-Forwarded-Server $host;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header Host $host;
+proxy_set_header X-Forwarded-Proto $scheme;
 
-<span class="kn">add_header</span> <span class="s">X-Cache-Status</span> <span class="nv">$upstream_cache_status</span><span class="p">;</span>
+add_header X-Cache-Status $upstream_cache_status;
 
-<span class="c1">#адресс tomcat</span>
-<span class="kn">proxy_pass</span> <span class="s">http://localhost:8080</span><span class="p">;</span>
+#адресс tomcat
+proxy_pass http://localhost:8080;
 
-<span class="kn">index</span> <span class="s">index.jsp</span>
-<span class="s">proxy_ignore_headers</span> <span class="s">X-Accel-Expires</span> <span class="s">Expires</span> <span class="s">Cache-Control</span><span class="p">;</span>
-<span class="kn">proxy_cache</span> <span class="s">serg_cache</span><span class="p">;</span>
-<span class="kn">proxy_cache_min_uses</span> <span class="mi">1</span><span class="p">;</span>
-<span class="kn">proxy_cache_valid</span> <span class="mi">200</span> <span class="mi">302</span> <span class="mi">120m</span><span class="p">;</span>
-<span class="kn">proxy_cache_valid</span> <span class="mi">404</span> <span class="mi">1m</span><span class="p">;</span>
-<span class="kn">proxy_cache_use_stale</span> <span class="s">error</span> <span class="s">timeout</span> <span class="s">invalid_header</span> <span class="s">http_500</span> <span class="s">http_502</span> <span class="s">http_503</span> <span class="s">http_504</span><span class="p">;</span>
+index index.jsp
+proxy_ignore_headers X-Accel-Expires Expires Cache-Control;
+proxy_cache serg_cache;
+proxy_cache_min_uses 1;
+proxy_cache_valid 200 302 120m;
+proxy_cache_valid 404 1m;
+proxy_cache_use_stale error timeout invalid_header http_500 http_502 http_503 http_504;
 
-<span class="kn">set</span> <span class="nv">$no_cache</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+set $no_cache "";
 
-<span class="c1">#не кешировать если у пользователя есть кука начинающаяся на JSESSION</span>
-<span class="kn">if</span> <span class="s">(</span><span class="nv">$http_cookie</span> <span class="p">~</span><span class="sr">*</span> <span class="s">&quot;JSESSION*&quot;)</span><span class="p">{</span>
-	<span class="kn">set</span> <span class="nv">$no_cache</span> <span class="mi">1</span><span class="p">;</span>
-<span class="p">}</span>
+#не кешировать если у пользователя есть кука начинающаяся на JSESSION
+if ($http_cookie ~* "JSESSION*"){
+	set $no_cache 1;
+}
 
-<span class="c1">#если в uri есть management или client</span>
-<span class="kn">if</span> <span class="s">(</span><span class="nv">$request_uri</span> <span class="p">~</span><span class="sr">*</span> <span class="s">&quot;(/management*|/client*)&quot;)</span> <span class="p">{</span>
-	<span class="kn">set</span> <span class="nv">$no_cache</span> <span class="mi">1</span><span class="p">;</span>
-<span class="p">}</span>
+#если в uri есть management или client
+if ($request_uri ~* "(/management*|/client*)") {
+	set $no_cache 1;
+}
 
-<span class="kn">proxy_no_cache</span> <span class="nv">$no_cache</span><span class="p">;</span>
-<span class="kn">proxy_cache_bypass</span> <span class="nv">$no_cache</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
+proxy_no_cache $no_cache;
+proxy_cache_bypass $no_cache;
+}
 </p>
 
 <p>Теперь необходимо настроить сам tomcat. Для этого достаточно в файле server.xml прописать.
-<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;Connector</span> <span class="na">port=</span><span class="s">&quot;8080&quot;</span> <span class="na">protocol=</span><span class="s">&quot;HTTP/1.1&quot;</span>
-    <span class="na">connectionTimeout=</span><span class="s">&quot;20000&quot;</span>
-    <span class="na">address=</span><span class="s">&quot;127.0.0.1&quot;</span>
-    <span class="na">URIEncoding=</span><span class="s">&quot;UTF-8&quot;</span>
-    <span class="na">redirectPort=</span><span class="s">&quot;8443&quot;</span> <span class="nt">/&gt;</span>
-</code></pre></div>
+
+<Connector port="8080" protocol="HTTP/1.1"
+    connectionTimeout="20000"
+    address="127.0.0.1"
+    URIEncoding="UTF-8"
+    redirectPort="8443" />
 </p>
 
   </section>
