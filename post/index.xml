@@ -6,8 +6,33 @@
     <description>Recent content in Posts on Notes</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 15 Jun 2016 21:04:29 +0600</lastBuildDate>
+    <lastBuildDate>Sun, 10 Jul 2016 13:46:43 +0600</lastBuildDate>
     <atom:link href="http://p12se.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Настройка яркости монитора через терминал</title>
+      <link>http://p12se.github.io/post/brightness_monitor/</link>
+      <pubDate>Sun, 10 Jul 2016 13:46:43 +0600</pubDate>
+      
+      <guid>http://p12se.github.io/post/brightness_monitor/</guid>
+      <description>&lt;p&gt;Мне всегда очень нравилось в ноутбуках то, что всегда можно легко менять яркость экрана. Пока я работал на ноутбуке больше чем на обычном стационарном PC меня не беспокоила проблема гибкой настройки яркости монитора.&lt;/p&gt;
+
+&lt;p&gt;Так вот когда я понял, что уже большую часть работаю за PC у меня появилась необходимость менять яркость монитора в зависимости от моего настроения и освещения в комнате. Делать это через настройки самого монитора я ни когда не любил ибо это не самая удобная возможность. А вот через терминал самое то!&lt;/p&gt;
+
+&lt;p&gt;Для этого необходимо всего 2 команды.&lt;/p&gt;
+
+&lt;p&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;xrandr -q | grep &lt;span class=&#34;s2&#34;&gt;&amp;quot; connected&amp;quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+Команда должна показать к какому выходу подключен монитор (и выходы если у тебя их больше 1)&lt;/p&gt;
+
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;xrandr --output LVDS1 --brightness 0.5
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Где для настройки яркости нужно менять значение &lt;code&gt;--brightness 0.5&lt;/code&gt;&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Настройка nginx в качестве прокси-сервера для tomcat</title>

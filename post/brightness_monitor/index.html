@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<meta name="author" content="">
+<meta name="generator" content="Hugo 0.17-DEV" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://p12se.github.io/css/style.css" type="text/css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" type="text/css">
+<link rel="alternate" href="http://p12se.github.io/index.xml" type="application/rss+xml" title="Notes">
+<title>Настройка яркости монитора через терминал - Notes</title>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <a class="path" href="http://p12se.github.io/">[Notes]</a>
+    <span class="caret"># _</span>
+  </div>
+</header>
+
+<div class="container">
+
+
+<main role="main" class="article">
+  
+<article class="single" itemscope itemtype="http://schema.org/BlogPosting">
+  <div class="meta">
+
+    <span class="key">опубликовано</span>
+    <span class="val"><time itemprop="datePublished" datetime="2016-07-10">07-10-2016</time></span>
+
+
+
+  </div>
+  <h1 class="headline" itemprop="headline">Настройка яркости монитора через терминал</h1>
+  <section class="body" itemprop="articleBody">
+    <p>Мне всегда очень нравилось в ноутбуках то, что всегда можно легко менять яркость экрана. Пока я работал на ноутбуке больше чем на обычном стационарном PC меня не беспокоила проблема гибкой настройки яркости монитора.</p>
+
+<p>Так вот когда я понял, что уже большую часть работаю за PC у меня появилась необходимость менять яркость монитора в зависимости от моего настроения и освещения в комнате. Делать это через настройки самого монитора я ни когда не любил ибо это не самая удобная возможность. А вот через терминал самое то!</p>
+
+<p>Для этого необходимо всего 2 команды.</p>
+
+<p><div class="highlight"><pre><code class="language-bash" data-lang="bash">xrandr -q | grep <span class="s2">&quot; connected&quot;</span>
+</code></pre></div>
+
+Команда должна показать к какому выходу подключен монитор (и выходы если у тебя их больше 1)</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash">xrandr --output LVDS1 --brightness 0.5
+</code></pre></div>
+
+
+<p>Где для настройки яркости нужно менять значение <code>--brightness 0.5</code></p>
+
+  </section>
+  <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'p12se';
+    var disqus_identifier = 'http:\/\/p12se.github.io\/post\/brightness_monitor\/';
+    var disqus_title = 'Настройка яркости монитора через терминал';
+    var disqus_url = 'http:\/\/p12se.github.io\/post\/brightness_monitor\/';
+
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</article>
+
+</main>
+
+
+</div>
+
+<footer>
+  <div class="container">
+    <span class="copyright">&copy; 2016  Notes - <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></span>
+  </div>
+</footer>
+
+
+
+<script type="text/javascript">
+    (function (d, w, c) {
+	(w[c] = w[c] || []).push(function() {
+	    try {
+		w.yaCounter = new Ya.Metrika({
+		    id: "23674696" ,
+		    clickmap:true,
+		    trackLinks:true,
+		    accurateTrackBounce:true,
+		    webvisor:true
+		});
+	    } catch(e) { }
+	});
+
+	var n = d.getElementsByTagName("script")[0],
+	    s = d.createElement("script"),
+	    f = function () { n.parentNode.insertBefore(s, n); };
+	s.type = "text/javascript";
+	s.async = true;
+	s.src = "https://mc.yandex.ru/metrika/watch.js";
+
+	if (w.opera == "[object Opera]") {
+	    d.addEventListener("DOMContentLoaded", f, false);
+	} else { f(); }
+    })(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/23674696" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+
+
+</body>
+</html>
+
